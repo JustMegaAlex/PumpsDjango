@@ -19,5 +19,6 @@ from Main import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('main/', views.pumps_view)
+    path('main/', views.pumps_view),
+    path('chained/', include('chained_selects.urls')),
 ]

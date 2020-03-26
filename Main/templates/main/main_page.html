@@ -1,5 +1,28 @@
-<form action="/main/" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit">
-</form>
+
+<!DOCTYPE html>
+<head>
+    <body>
+        <form action="/main/" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit">
+        </form>
+        {% if image_path %}
+        <div>
+            <img src= {{image_path}}>
+        </div>
+        {% endif %}
+        <select id="id_country" name="country">
+            <option value="" selected="selected">---------</option>
+            <option value="1">Colombia</option>
+            <option value="2">Rusia</option>
+        </select>
+        <select id="id_city" name="city">
+            <option value="" selected="selected">---------</option>
+            <option value="1" class="1">Bogotá</option>
+            <option value="2" class="2">Moscú</option>
+            <option value="3" class="2">San Petersburgo</option>
+            <option value="4" class="1">Valledupar</option>
+        </select>
+    </body>
+</head>
