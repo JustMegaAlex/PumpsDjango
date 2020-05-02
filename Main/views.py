@@ -46,6 +46,7 @@ def update_data(request):
 
     table = pd.read_excel('Data/data.xlsx', sheet_name = manufacturer)
     rows_total = table.count()[0]
+    points_count = 6
 
     try:
         model_inst = Eq_model.objects.get(manufacturer = manuf_inst, eq_model = eq_model)
@@ -63,24 +64,24 @@ def update_data(request):
 
     for row in range(rows_total):
         eq_mark = table['mark'][row]
-        q_points = [str(table[f'q{point}'][row]) for point in range(points)]
-        p2_points = [str(table[f'p2{point}'][row]) for point in range(points)]
-        npsh_points = [str(table[f'npsh{point}'][row]) for point in range(points)]
-        efficiency_points = [str(table[f'eff{point}'][row]) for point in range(points)]
-        h_points = [str(table[f'h{point}'][row]) for point in range(points)]
-
-        h_curve_points = ','.join(q_points)
-        q_curve_points = ','.join(q_points)
-        p2_curve_points = ','.join(q_points)
-        npsh_curve_points = ','.join(q_points)
-        efficiency_curve_points = ','.join(q_points)
+        q_points = [str(table[f'q{point}'][row]) for point in range(points_count)]
+        p2_points = [str(table[f'p2{point}'][row]) for point in range(points_count)]
+        npsh_points = [str(table[f'npsh{point}'][row]) for point in range(points_count)]
+        efficiency_points = [str(table[f'eff{point}'][row]) for point in range(points_count)]
+        h_points = [str(table[f'h{point}'][row]) for point in range(points_count)]
 
         try:
             mark_inst = Eq_mark.objects.get(eq_mark = eq_mark, manufacturer = manuf_inst, eq_type = type_inst)
         except ObjectDoesNotExist:
             mark_inst = Eq_mark(eq_mark = eq_mark, manufacturer = manuf_inst, eq_type = type_inst)
         
-        mark_inst.pq_curve_points = curve_str
+        mark_inst.h_curve_points = ','.join(h_points)
+        mark_inst.q_curve_points = ','.join(q_points)
+        mark_inst.p2_curve_points = ','.join(p2_points)
+        mark_inst.npsh_curve_points = ','.join(npsh_points)
+        mark_inst.efficiency_curve_points = ','.join(efficiency_points)
         mark_inst.save()
+
+    print('Updated succefully!')
     
     return render(request, 'main/pumps.html')
