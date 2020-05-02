@@ -6,16 +6,35 @@ from matplotlib import pyplot as plt
 from .forms import Choose
 from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
 
-def save_plot_as_png(curve_str):
+def create_plot_image(mark_inst):
+
+    h_points = get_list_points(mark_inst.h_curve_points)
+    
     plt.clf() # clean plot
-    y = curve_str.split(';') # x and y points strings
-    x = [float(point) for point in y[1].split(',')]
-    y = [float(point) for point in y[0].split(',')]
-    plt.plot(x, y)
+    # add curves
+    ax_q = plt.subplot()
+    ax_q.plot(h_points, get_list_points(mark_inst.q_curve_points))
+    ax_q.spines['left'].set_position(('axes', 0))
+
+    ax_p2 = ax_q.twinx()
+    ax_p2.plot(h_points, get_list_points(mark_inst.p2_curve_points))
+    ax_q.spines['left'].set_position(('axes', -0.1))
+
+    ax_npsh = ax_q.twinx()
+    ax_npsh.plot(h_points, get_list_points(mark_inst.npsh_curve_points))
+    ax_npsh.spines['left'].set_position(('axes', 1))
+
+    ax_eff = ax_q.twinx()
+    ax_eff.plot(h_points, get_list_points(mark_inst.efficiency_curve_points))
+    ax_eff.spines['left'].set_position(('axes', 1.2))
+
     path = '/static/images/pq.png'
     plt.savefig('Main/static/images/pq.png', )
     return path
 
+def get_list_points(str_curve):
+
+    return [float(s) for s in str_curve.split(',')]
 
 def pumps(request):
 
@@ -27,11 +46,9 @@ def pumps(request):
     context = {}
 
     if eq_mark:
-        curve_str = Eq_mark.objects.get(eq_mark = eq_mark).pq_curve_points
-        plot_img_path = save_plot_as_png(curve_str)
+        eq_mark_inst = Eq_mark.objects.get(eq_mark = eq_mark)
+        plot_img_path = create_plot_image(eq_mark_inst)
         context['image_path'] = plot_img_path
-
-    print({'manuf':manuf,'eq_model':eq_model, 'eq_type':eq_type})
 
     form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type)
     context['form'] = form
