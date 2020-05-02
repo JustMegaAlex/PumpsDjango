@@ -1,10 +1,12 @@
 
 <!DOCTYPE html>
+<html>
 <head>
+</head>
     <body>
         <form action="/main/" method="post">
             {% csrf_token %}
-            {{ form }}
+            {{ form.as_p }}
             <input type="submit" value="Submit">
         </form>
         {% if image_path %}
@@ -12,3 +14,5 @@
             <img src= {{image_path}}>
         </div>
         {% endif %}
+    </body>
+</html>

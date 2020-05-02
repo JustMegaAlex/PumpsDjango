@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', views.pumps),
     path('chaining/', include('smart_selects.urls')),
+    path('update/', views.update_data)
 ]
