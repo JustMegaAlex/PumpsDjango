@@ -19,8 +19,9 @@ class Eq_mark(models.Model):
     eq_type = models.ForeignKey(Eq_type, on_delete= models.CASCADE)
 
     # curves fields
-    default_curve_string = '0.00'*14 + '0.00' + ';' + '0.00'*14 + '0.00'
-    pq_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)
+    default_curve_string = ','.join(['0.00']*14)
+    h_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)
+    q_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)
     p2_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)
     npsh_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)
-    efficency_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)
+    efficiency_curve_points = models.CharField(max_length= 150, blank = True, default = default_curve_string)

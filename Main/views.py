@@ -45,7 +45,7 @@ def update_data(request):
     manuf_inst = Manufacturer.objects.get(name = manufacturer)
 
     table = pd.read_excel('Data/data.xlsx', sheet_name = manufacturer)
-    rows_total = table.count().[0]
+    rows_total = table.count()[0]
 
     try:
         model_inst = Eq_model.objects.get(manufacturer = manuf_inst, eq_model = eq_model)
@@ -66,17 +66,21 @@ def update_data(request):
         q_points = [str(table[f'q{point}'][row]) for point in range(points)]
         p2_points = [str(table[f'p2{point}'][row]) for point in range(points)]
         npsh_points = [str(table[f'npsh{point}'][row]) for point in range(points)]
-        efficency_points = [str(table[f'eff{point}'][row]) for point in range(points)]
+        efficiency_points = [str(table[f'eff{point}'][row]) for point in range(points)]
         h_points = [str(table[f'h{point}'][row]) for point in range(points)]
 
-        curve_str = ','.join(H_points) +';'+','.join(Q_points)
+        h_curve_points = ','.join(q_points)
+        q_curve_points = ','.join(q_points)
+        p2_curve_points = ','.join(q_points)
+        npsh_curve_points = ','.join(q_points)
+        efficiency_curve_points = ','.join(q_points)
 
         try:
             mark_inst = Eq_mark.objects.get(eq_mark = eq_mark, manufacturer = manuf_inst, eq_type = type_inst)
-            mark_inst.pq_curve_points = curve_str
-            mark_inst.save()
         except ObjectDoesNotExist:
             mark_inst = Eq_mark(eq_mark = eq_mark, manufacturer = manuf_inst, eq_type = type_inst)
-            mark_inst.save()
+        
+        mark_inst.pq_curve_points = curve_str
+        mark_inst.save()
     
     return render(request, 'main/pumps.html')

@@ -2,8 +2,6 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import smart_selects.db_fields
-
 
 class Migration(migrations.Migration):
 
@@ -25,7 +23,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('type', models.CharField(blank=True, default='Unnamed', max_length=30)),
-                ('manufacturer', smart_selects.db_fields.ChainedForeignKey(auto_choose=True, chained_field='manufacturer', chained_model_field='manufacturer', on_delete=django.db.models.deletion.CASCADE, to='Main.Manufacturer')),
             ],
         ),
     ]
