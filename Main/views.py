@@ -1,36 +1,42 @@
 import os
+import numpy as np
 import pandas as pd
+from scipy.interpolate import interp1d
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from matplotlib import pyplot as plt
 from .forms import Choose
 from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
 
-def create_plot_image(mark_inst):
+def create_plot_image(mark_inst, work_point = None):
 
-    q_points = get_list_points(mark_inst.q_curve_points)
+    interpolate_points = 40
+
+    q_points_coarse = get_list_points(mark_inst.q_curve_points)
+    q_points = np.linspace(q_points_coarse[0], q_points_coarse[-1], interpolate_points, endpoint = True)
+
     path1 = '/static/images/pq_and_eff.png'
     path2 = '/static/images/npsh.png'
     path3 = '/static/images/p2.png'
     
-    plt.clf() # clean plot
-    ax_h = plt.subplot()
-    ax_h.plot(q_points, get_list_points(mark_inst.h_curve_points))
-    ax_h.spines['left'].set_position(('axes', 0))
+    plt.clf() # clean plots
 
-    ax_eff = ax_h.twinx()
-    ax_eff.plot(q_points, get_list_points(mark_inst.efficiency_curve_points))
-    ax_eff.spines['left'].set_position(('axes', 1))
+    plt.plot(q_points, get_list_points(mark_inst.h_curve_points, q_points_coarse, q_points))
+
+    # add workpoint
+    if work_point:
+        plt.plot(work_point[0], work_point[1], 'ro')
+
+    ax_eff = plt.twinx()
+    ax_eff.plot(q_points, get_list_points(mark_inst.efficiency_curve_points, q_points_coarse, q_points))
     plt.savefig('Main/' + path1)
     
     plt.clf()
-    ax_npsh = ax_h.twinx()
-    ax_npsh.plot(q_points, get_list_points(mark_inst.npsh_curve_points))
+    plt.plot(q_points, get_list_points(mark_inst.npsh_curve_points, q_points_coarse, q_points))
     plt.savefig('Main/' + path2)
 
     plt.clf()
-    ax_p2 = ax_h.twinx()
-    ax_p2.plot(q_points, get_list_points(mark_inst.p2_curve_points))
+    plt.plot(q_points, get_list_points(mark_inst.p2_curve_points, q_points_coarse, q_points))
     plt.savefig('Main/' + path3)
 
     image_paths = {
@@ -41,9 +47,18 @@ def create_plot_image(mark_inst):
     
     return image_paths
 
-def get_list_points(str_curve):
+def get_list_points(str_curve, old_x = None, new_x = None):
 
-    return [float(s) for s in str_curve.split(',')]
+    y = [float(s) for s in str_curve.split(',')]
+
+    if not old_x:
+        return y
+
+    print(old_x, new_x, y)
+
+    interp = interp1d(old_x, y, kind = 'quadratic')
+
+    return interp(new_x)
 
 def pumps(request):
 
@@ -51,15 +66,18 @@ def pumps(request):
     eq_type = request.POST.get('eq_type')
     eq_model = request.POST.get('eq_model')
     eq_mark = request.POST.get('eq_mark')
-    
+    _x = request.POST.get('x_coord')
+    _y = request.POST.get('y_coord')
+    work_point = (float(_x), float(_y)) if _x  and _y  else None
+
     context = {}
 
     if eq_mark:
         eq_mark_inst = Eq_mark.objects.get(eq_mark = eq_mark)
-        image_paths = create_plot_image(eq_mark_inst)
+        image_paths = create_plot_image(eq_mark_inst, work_point = work_point)
         context.update(image_paths)
 
-    form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type)
+    form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type, point_x = _x, point_y = _y)
     context['form'] = form
     return render(request, 'main/pumps.html', context)
 

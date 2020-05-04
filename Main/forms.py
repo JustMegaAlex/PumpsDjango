@@ -10,9 +10,11 @@ class Choose(forms.Form):
     eq_model = forms.ChoiceField(required= False)
     eq_type = forms.ChoiceField(required= False)
     eq_mark = forms.ChoiceField(required= False)
+    x_coord = forms.FloatField(required = False)
+    y_coord = forms.FloatField(required = False)
     
 
-    def __init__(self, ch_manuf=None, ch_model = None, ch_type=None, *args, **kwargs):
+    def __init__(self, ch_manuf = None, ch_model = None, ch_type = None, ch_mark = None,  point_x = None, point_y = None, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
 
@@ -30,3 +32,7 @@ class Choose(forms.Form):
                     type_obj = Eq_type.objects.get(eq_type = ch_type)
                     self.fields['eq_mark'].choices = [(obj.eq_mark, obj.eq_mark) for obj in Eq_mark.objects.filter(eq_type = type_obj)]
                     self.fields['eq_type'].initial = ch_type
+        
+        if point_x and point_y:
+            self.fields['x_coord'].initial = point_x
+            self.fields['y_coord'].initial = point_y
