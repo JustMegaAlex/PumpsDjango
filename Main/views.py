@@ -47,11 +47,11 @@ def get_list_points(str_curve):
 
 def pumps(request):
 
-    manuf = request.POST.get('manuf')
+    manuf = request.POST.get('manufacturer')
     eq_type = request.POST.get('eq_type')
     eq_model = request.POST.get('eq_model')
     eq_mark = request.POST.get('eq_mark')
-
+    
     context = {}
 
     if eq_mark:
