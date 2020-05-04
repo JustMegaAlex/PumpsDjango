@@ -9,28 +9,37 @@ from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
 def create_plot_image(mark_inst):
 
     q_points = get_list_points(mark_inst.q_curve_points)
+    path1 = '/static/images/pq_and_eff.png'
+    path2 = '/static/images/npsh.png'
+    path3 = '/static/images/p2.png'
     
     plt.clf() # clean plot
-    # add curves
     ax_h = plt.subplot()
     ax_h.plot(q_points, get_list_points(mark_inst.h_curve_points))
     ax_h.spines['left'].set_position(('axes', 0))
 
-    ax_p2 = ax_h.twinx()
-    ax_p2.plot(q_points, get_list_points(mark_inst.p2_curve_points))
-    ax_p2.spines['left'].set_position(('axes', -0.1))
-
-    ax_npsh = ax_h.twinx()
-    ax_npsh.plot(q_points, get_list_points(mark_inst.npsh_curve_points))
-    ax_npsh.spines['left'].set_position(('axes', 1))
-
     ax_eff = ax_h.twinx()
     ax_eff.plot(q_points, get_list_points(mark_inst.efficiency_curve_points))
-    ax_eff.spines['left'].set_position(('axes', 1.2))
+    ax_eff.spines['left'].set_position(('axes', 1))
+    plt.savefig('Main/' + path1)
+    
+    plt.clf()
+    ax_npsh = ax_h.twinx()
+    ax_npsh.plot(q_points, get_list_points(mark_inst.npsh_curve_points))
+    plt.savefig('Main/' + path2)
 
-    path = '/static/images/pq.png'
-    plt.savefig('Main/static/images/pq.png', )
-    return path
+    plt.clf()
+    ax_p2 = ax_h.twinx()
+    ax_p2.plot(q_points, get_list_points(mark_inst.p2_curve_points))
+    plt.savefig('Main/' + path3)
+
+    image_paths = {
+        'img1':path1,
+        'img2':path2,
+        'img3':path3
+    }
+    
+    return image_paths
 
 def get_list_points(str_curve):
 
@@ -47,8 +56,8 @@ def pumps(request):
 
     if eq_mark:
         eq_mark_inst = Eq_mark.objects.get(eq_mark = eq_mark)
-        plot_img_path = create_plot_image(eq_mark_inst)
-        context['image_path'] = plot_img_path
+        image_paths = create_plot_image(eq_mark_inst)
+        context.update(image_paths)
 
     form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type)
     context['form'] = form
@@ -76,8 +85,6 @@ def update_data(request):
     except ObjectDoesNotExist:
         type_inst = Eq_type(eq_model = model_inst, eq_type = eq_type)
         type_inst.save()
-
-
 
     for row in range(rows_total):
         eq_mark = table['mark'][row]

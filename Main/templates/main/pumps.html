@@ -7,8 +7,8 @@
             {{ form.as_p }}
             <input type="submit" value="Submit">
         </form>
-        {% if image_path %}
-        <div>
-            <img height = 250 width = 250 src= {{image_path}}>
-        </div>
+        {% if img1 %}
+        <div><img height = 250 width = 250 src= {{img1}}></div>
+        <div><img height = 250 width = 250 src= {{img2}}></div>
+        <div><img height = 250 width = 250 src= {{img3}}></div>
         {% endif %}
