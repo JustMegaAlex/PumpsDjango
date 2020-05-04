@@ -4,3 +4,4 @@ __pycache__
 stuff/
 src/
 Data/
+*static/
