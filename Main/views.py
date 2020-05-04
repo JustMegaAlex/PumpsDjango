@@ -8,24 +8,24 @@ from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
 
 def create_plot_image(mark_inst):
 
-    h_points = get_list_points(mark_inst.h_curve_points)
+    q_points = get_list_points(mark_inst.q_curve_points)
     
     plt.clf() # clean plot
     # add curves
-    ax_q = plt.subplot()
-    ax_q.plot(h_points, get_list_points(mark_inst.q_curve_points))
-    ax_q.spines['left'].set_position(('axes', 0))
+    ax_h = plt.subplot()
+    ax_h.plot(q_points, get_list_points(mark_inst.h_curve_points))
+    ax_h.spines['left'].set_position(('axes', 0))
 
-    ax_p2 = ax_q.twinx()
-    ax_p2.plot(h_points, get_list_points(mark_inst.p2_curve_points))
-    ax_q.spines['left'].set_position(('axes', -0.1))
+    ax_p2 = ax_h.twinx()
+    ax_p2.plot(q_points, get_list_points(mark_inst.p2_curve_points))
+    ax_p2.spines['left'].set_position(('axes', -0.1))
 
-    ax_npsh = ax_q.twinx()
-    ax_npsh.plot(h_points, get_list_points(mark_inst.npsh_curve_points))
+    ax_npsh = ax_h.twinx()
+    ax_npsh.plot(q_points, get_list_points(mark_inst.npsh_curve_points))
     ax_npsh.spines['left'].set_position(('axes', 1))
 
-    ax_eff = ax_q.twinx()
-    ax_eff.plot(h_points, get_list_points(mark_inst.efficiency_curve_points))
+    ax_eff = ax_h.twinx()
+    ax_eff.plot(q_points, get_list_points(mark_inst.efficiency_curve_points))
     ax_eff.spines['left'].set_position(('axes', 1.2))
 
     path = '/static/images/pq.png'
