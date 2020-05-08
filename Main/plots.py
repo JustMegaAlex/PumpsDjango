@@ -34,7 +34,9 @@ def create_plot_image(mark_inst, work_point = None):
             koef = work_point[1]/work_point[0]**2
             h_load_points = [koef*q**2 for q in q_points_coarse]
             h_load_fun = interp1d(q_points_coarse, h_load_points, kind = interp_kind)
+            load_point = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
             plt.plot(q_points, h_load_fun(q_points))
+            plt.plot(load_point[0], load_point[1], 'ro')
 
     # plot eff-Q curve
     ax_eff = plt.twinx()
@@ -66,3 +68,35 @@ def get_list_points(str_curve, old_x = None, new_x = None):
     :returns: a list of floats
     '''
     return [float(s) for s in str_curve.split(',')]
+
+
+def get_intersect_point(f1, f2, segment, tol = 0.001, max_iters = 1000):
+    max_x = segment[1]
+    min_x = segment[0]
+    if f1(min_x) < f2(min_x):
+        f1, f2 = f2, f1
+    x = (max_x - min_x)*0.5
+    y1 = f1(x)
+    y2 = f2(x)
+    diff = y1 - y2
+
+    while (abs(diff) > tol) and max_iters:
+        max_iters -= 1
+        if diff > 0:
+            min_x = x
+            x = x + (max_x - x)*0.5
+            y1 = f1(x)
+            y2 = f2(x)
+            diff = y1 - y2
+        else:
+            max_x = x
+            x = x - (x - min_x)*0.5
+            y1 = f1(x)
+            y2 = f2(x)
+            diff = y1 - y2
+
+    if not max_iters and (abs(diff) > tol):
+        print('get_intersect_point: intersection point not found')
+        return None
+
+    return x, y1
