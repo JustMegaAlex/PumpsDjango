@@ -7,6 +7,7 @@ def create_plot_image(mark_inst, work_point = None):
 
     interp_points = 40
     interp_kind = 'quadratic'
+    load_point = None
 
     q_points_coarse = get_list_points(mark_inst.q_curve_points)
     q_points = np.linspace(q_points_coarse[0], q_points_coarse[-1], interp_points, endpoint = True)
@@ -53,13 +54,14 @@ def create_plot_image(mark_inst, work_point = None):
     plt.plot(q_points, p2_fun(q_points))
     plt.savefig('Main/' + path3)
 
-    image_paths = {
+    curves_data = {
         'img1':path1,
         'img2':path2,
-        'img3':path3
+        'img3':path3,
+        'load_point': load_point
     }
     
-    return image_paths
+    return curves_data
 
 def get_list_points(str_curve, old_x = None, new_x = None):
     '''
