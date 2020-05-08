@@ -42,17 +42,24 @@ def create_plot_image(mark_inst, work_point = None):
             h_load_points = [koef*q**2 for q in q_points_coarse]
             h_load_fun = interp1d(q_points_coarse, h_load_points, kind = interp_kind)
             load_q, load_h = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
-            plt.plot(q_points, h_load_fun(q_points))
-            plt.plot(load_q, load_h, 'ro')
+            
+            if load_q:
+                plt.plot(q_points, h_load_fun(q_points))
+                plt.plot(load_q, load_h, 'ro')
 
-            # compute other curves' values
-            load_eff = eff_fun(load_q)
-            load_npsh = npsh_fun(load_q)
-            load_p2 = p2_fun(load_q)
+                # compute other curves' values
+                load_eff = eff_fun(load_q)
+                load_npsh = npsh_fun(load_q)
+                load_p2 = p2_fun(load_q)
 
     # plot eff-Q curve
     ax_eff = plt.twinx()
-    ax_eff.plot(q_points, eff_fun(q_points))
+    eff_points = eff_fun(q_points)
+    ax_eff.plot(q_points, eff_points)
+    # get efficiency max value
+    eff_max = max(eff_points)
+    # set plot y lim(it
+    ax_eff.set_ylim((0, eff_max*3))
     plt.savefig('Main/' + path1)
     
     # plot npsh-Q curve
@@ -121,7 +128,7 @@ def get_intersect_point(f1, f2, segment, tol = 0.001, max_iters = 1000):
 
     if not max_iters and (abs(diff) > tol):
         print('get_intersect_point: intersection point not found')
-        return None
+        return None, None
 
     return x, y1
 
