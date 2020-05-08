@@ -8,6 +8,9 @@ def create_plot_image(mark_inst, work_point = None):
     interp_points = 40
     interp_kind = 'quadratic'
     load_point = None
+    load_eff_val = None
+    load_npsh = None
+    load_p2 = None
 
     q_points_coarse = get_list_points(mark_inst.q_curve_points)
     q_points = np.linspace(q_points_coarse[0], q_points_coarse[-1], interp_points, endpoint = True)
@@ -29,15 +32,23 @@ def create_plot_image(mark_inst, work_point = None):
 
     # plot workpoint and load H-Q curve
     if work_point:
-        plt.plot(work_point[0], work_point[1], 'ro')
-
         if work_point[0] > 0 and work_point[1] > 0:
+            # plot work_point
+            plt.plot(work_point[0], work_point[1], 'ro')
+
+            # compute and plot load curve
             koef = work_point[1]/work_point[0]**2
             h_load_points = [koef*q**2 for q in q_points_coarse]
             h_load_fun = interp1d(q_points_coarse, h_load_points, kind = interp_kind)
             load_point = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
             plt.plot(q_points, h_load_fun(q_points))
             plt.plot(load_point[0], load_point[1], 'ro')
+
+            # compute other curves' values
+            q_val = load_point[0]
+            load_eff_val = eff_fun(q_val)
+            load_npsh_val = npsh_fun(q_val)
+            load_p2_val = p2_fun(q_val)
 
     # plot eff-Q curve
     ax_eff = plt.twinx()
@@ -59,7 +70,10 @@ def create_plot_image(mark_inst, work_point = None):
         'img2': path2,
         'img3': path3,
         'load_q': formatted(load_point[0]),
-        'load_h': formatted(load_point[1])
+        'load_h': formatted(load_point[1]),
+        'load_eff': load_eff_val,
+        'load_npsh': load_npsh_val,
+        'load_p2': load_p2_val
     }
     
     return curves_data
@@ -104,5 +118,5 @@ def get_intersect_point(f1, f2, segment, tol = 0.001, max_iters = 1000):
 
     return x, y1
 
-    def formatted(f):
-        return '{:.2f}'.format(f)
+def formatted(f):
+    return '{:.2f}'.format(f)
