@@ -71,9 +71,9 @@ def create_plot_image(mark_inst, work_point = None):
         'img3': path3,
         'load_q': formatted(load_point[0]),
         'load_h': formatted(load_point[1]),
-        'load_eff': load_eff_val,
-        'load_npsh': load_npsh_val,
-        'load_p2': load_p2_val
+        'load_eff': formatted(load_eff_val),
+        'load_npsh': formatted(load_npsh_val),
+        'load_p2': formatted(load_p2_val)
     }
     
     return curves_data
