@@ -55,10 +55,11 @@ def create_plot_image(mark_inst, work_point = None):
     plt.savefig('Main/' + path3)
 
     curves_data = {
-        'img1':path1,
-        'img2':path2,
-        'img3':path3,
-        'load_point': load_point
+        'img1': path1,
+        'img2': path2,
+        'img3': path3,
+        'load_q': formatted(load_point[0]),
+        'load_h': formatted(load_point[1])
     }
     
     return curves_data
@@ -102,3 +103,6 @@ def get_intersect_point(f1, f2, segment, tol = 0.001, max_iters = 1000):
         return None
 
     return x, y1
+
+    def formatted(f):
+        return '{:.2f}'.format(f)

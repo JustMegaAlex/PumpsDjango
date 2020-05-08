@@ -22,8 +22,8 @@ def pumps(request):
 
     if eq_mark:
         eq_mark_inst = Eq_mark.objects.get(eq_mark = eq_mark)
-        image_paths = create_plot_image(eq_mark_inst, work_point = work_point)
-        context.update(image_paths)
+        curves_data = create_plot_image(eq_mark_inst, work_point = work_point)
+        context.update(curves_data)
 
     form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type, point_x = _x, point_y = _y)
     context['form'] = form
