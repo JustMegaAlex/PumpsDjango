@@ -7,8 +7,9 @@ def create_plot_image(mark_inst, work_point = None):
 
     interp_points = 40
     interp_kind = 'quadratic'
-    load_point = None
-    load_eff_val = None
+    load_q = None
+    load_h = None
+    load_eff = None
     load_npsh = None
     load_p2 = None
 
@@ -40,15 +41,14 @@ def create_plot_image(mark_inst, work_point = None):
             koef = work_point[1]/work_point[0]**2
             h_load_points = [koef*q**2 for q in q_points_coarse]
             h_load_fun = interp1d(q_points_coarse, h_load_points, kind = interp_kind)
-            load_point = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
+            load_q, load_h = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
             plt.plot(q_points, h_load_fun(q_points))
-            plt.plot(load_point[0], load_point[1], 'ro')
+            plt.plot(load_q, load_h, 'ro')
 
             # compute other curves' values
-            q_val = load_point[0]
-            load_eff_val = eff_fun(q_val)
-            load_npsh_val = npsh_fun(q_val)
-            load_p2_val = p2_fun(q_val)
+            load_eff = eff_fun(load_q)
+            load_npsh = npsh_fun(load_q)
+            load_p2 = p2_fun(load_q)
 
     # plot eff-Q curve
     ax_eff = plt.twinx()
@@ -65,15 +65,22 @@ def create_plot_image(mark_inst, work_point = None):
     plt.plot(q_points, p2_fun(q_points))
     plt.savefig('Main/' + path3)
 
+    if load_q != None:
+        load_q = formatted(load_q)
+        load_h = formatted(load_h)
+        load_eff = formatted(load_eff)
+        load_p2 = formatted(load_p2)
+        load_npsh = formatted(load_npsh)
+
     curves_data = {
         'img1': path1,
         'img2': path2,
         'img3': path3,
-        'load_q': formatted(load_point[0]),
-        'load_h': formatted(load_point[1]),
-        'load_eff': formatted(load_eff_val),
-        'load_npsh': formatted(load_npsh_val),
-        'load_p2': formatted(load_p2_val)
+        'load_q': load_q,
+        'load_h': load_h,
+        'load_eff': load_eff,
+        'load_npsh': load_npsh,
+        'load_p2': load_p2
     }
     
     return curves_data
