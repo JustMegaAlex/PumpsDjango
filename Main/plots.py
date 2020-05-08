@@ -7,6 +7,7 @@ def create_plot_image(mark_inst, work_point = None):
 
     interp_points = 40
     interp_kind = 'quadratic'
+    truncate_koef = 1.2
     load_q = None
     load_h = None
     load_eff = None
@@ -39,12 +40,18 @@ def create_plot_image(mark_inst, work_point = None):
 
             # compute and plot load curve
             koef = work_point[1]/work_point[0]**2
-            h_load_points = [koef*q**2 for q in q_points_coarse]
-            h_load_fun = interp1d(q_points_coarse, h_load_points, kind = interp_kind)
+            h_load_points_coarse = [koef*q**2 for q in q_points_coarse]
+            h_load_fun = interp1d(q_points_coarse, h_load_points_coarse, kind = interp_kind)
             load_q, load_h = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
             
             if load_q:
-                plt.plot(q_points, h_load_fun(q_points))
+                # compute index to truncate load curve
+                i = 0
+                while q_points[i] < load_q:
+                    i += 1
+                i = round(i*truncate_koef)
+                # plot curve truncated
+                plt.plot(q_points[:i], h_load_fun(q_points[:i]))
                 plt.plot(load_q, load_h, 'ro')
 
                 # compute other curves' values
