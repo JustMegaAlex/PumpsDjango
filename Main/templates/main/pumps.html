@@ -10,6 +10,10 @@
         {% if img1 %}
         <form>{{ point_input }}</form>
         <div><img height = 250 width = 250 src= {{img1}}></div>
+        {% if load_q %}
+        <p>Q системы: {{load_q}}</p>
+        <p>H системы: {{load_h}}</p>
+        {% endif %}
         <div><img height = 250 width = 250 src= {{img2}}></div>
         <div><img height = 250 width = 250 src= {{img3}}></div>
         {% endif %}
