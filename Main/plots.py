@@ -16,20 +16,24 @@ def create_plot_image(mark_inst, work_point = None):
     
     plt.clf() # clean plots
 
+    # plot H-Q curve
     plt.plot(q_points, get_list_points(mark_inst.h_curve_points, q_points_coarse, q_points))
 
-    # add workpoint
+    # plot workpoint
     if work_point:
         plt.plot(work_point[0], work_point[1], 'ro')
 
+    # plot eff-Q curve
     ax_eff = plt.twinx()
     ax_eff.plot(q_points, get_list_points(mark_inst.efficiency_curve_points, q_points_coarse, q_points))
     plt.savefig('Main/' + path1)
     
+    # plot npsh-Q curve
     plt.clf()
     plt.plot(q_points, get_list_points(mark_inst.npsh_curve_points, q_points_coarse, q_points))
     plt.savefig('Main/' + path2)
 
+    # plot p2-Q curve
     plt.clf()
     plt.plot(q_points, get_list_points(mark_inst.p2_curve_points, q_points_coarse, q_points))
     plt.savefig('Main/' + path3)
