@@ -11,7 +11,11 @@
         <ul>
             {% for mark in marks_list %}
 
-            <li>{{mark.id}}</li>
+            <li>
+                {{mark.id}} <a href="/main?eq_mark={{mark.id}}">глянем</a>
+            </li>
+
+            {% endfor %}
 
         </ul>
     </body>
