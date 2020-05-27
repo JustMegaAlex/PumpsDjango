@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import Choose, Work_point
 from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
-from .plots import create_plot_image
+from .plots import create_plot_image, get_interp_fun
 
 
 
@@ -31,7 +31,42 @@ def pumps(request):
 
 def choice(request):
 
-    context = {"form": Work_point()}
+    eq_type = '1s'
+
+    eq_type_instance = Eq_type.objects.get(eq_type = eq_type)
+
+    all_marks = Eq_mark.objects.filter(eq_type = eq_type_instance)
+
+    print(all_marks)
+
+    _x = request.POST.get('x_coord')
+    _y = request.POST.get('y_coord')
+    work_point = (float(_x), float(_y)) if _x  and _y  else None
+
+    context = {}
+    context['form'] = Work_point()
+
+    if work_point:
+
+        _x = float(_x)
+        _y = float(_y)
+
+        choosed_marks = []
+
+        # choose siutable marks
+        for mark in all_marks:
+
+            h_fun = get_interp_fun(mark, 'h')
+
+            compute_y = h_fun(_x)
+
+            delta = _y/compute_y
+
+            if 0.5 < delta < 1.02:
+
+                choosed_marks.append(mark)
+
+        context['marks_list'] = choosed_marks
 
     return render(request, 'main/choice.html', context)
 
