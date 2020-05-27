@@ -8,10 +8,28 @@ matplotlib.use('Agg')
 
 from matplotlib import pyplot as plt
 
+def get_interp_fun(mark_inst, which_curve = '', y_points_default = None, interp_kind = 'quadratic'):
+
+    if not y_points_default:
+
+        if which_curve == 'h':
+            y_points_default = mark_inst.h_curve_points
+        elif which_curve == 'eff':
+            y_points_default = mark_inst.efficiency_curve_points
+        elif which_curve == 'p2':
+            y_points_default = mark_inst.p2_curve_points
+        elif which_curve == 'npsh':
+            y_points_default = mark_inst.npsh_curve_points
+
+        y_points_default = get_list_points(y_points_default)
+
+    return interp1d(get_list_points(mark_inst.q_curve_points), y_points_default, kind = interp_kind)
+
+
+
 def create_plot_image(mark_inst, work_point = None):
 
     interp_points = 40
-    interp_kind = 'quadratic'
     truncate_koef = 1.2
     load_q = None
     load_h = None
@@ -29,10 +47,10 @@ def create_plot_image(mark_inst, work_point = None):
     plt.clf() # clean plots
 
     # interpolate curves
-    h_fun = interp1d(q_points_coarse, get_list_points(mark_inst.h_curve_points), kind = interp_kind)
-    eff_fun = interp1d(q_points_coarse, get_list_points(mark_inst.efficiency_curve_points), kind = interp_kind)
-    npsh_fun = interp1d(q_points_coarse, get_list_points(mark_inst.npsh_curve_points), kind = interp_kind)
-    p2_fun = interp1d(q_points_coarse, get_list_points(mark_inst.p2_curve_points), kind = interp_kind)
+    h_fun = get_interp_fun(mark_inst, 'h')
+    eff_fun = get_interp_fun(mark_inst, 'eff')
+    npsh_fun = get_interp_fun(mark_inst, 'npsh')
+    p2_fun = get_interp_fun(mark_inst, 'p2')
 
     # plot H-Q curve
     plt.plot(q_points, h_fun(q_points))
@@ -46,7 +64,7 @@ def create_plot_image(mark_inst, work_point = None):
             # compute and plot load curve
             koef = work_point[1]/work_point[0]**2
             h_load_points_coarse = [koef*q**2 for q in q_points_coarse]
-            h_load_fun = interp1d(q_points_coarse, h_load_points_coarse, kind = interp_kind)
+            h_load_fun = get_interp_fun(mark_inst, y_points_default = h_load_points_coarse)
             load_q, load_h = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
             
             if load_q:
