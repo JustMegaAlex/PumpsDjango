@@ -18,6 +18,9 @@ def pumps(request):
     _y = request.POST.get('y_coord')
     work_point = (float(_x), float(_y)) if _x  and _y  else None
 
+    if request.method == 'GET':
+        eq_mark = request.GET.get('eq_mark')
+
     context = {}
 
     if eq_mark:
