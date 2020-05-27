@@ -1,6 +1,11 @@
 
 import numpy as np
 from scipy.interpolate import interp1d
+
+# prevent runtime error
+import matplotlib
+matplotlib.use('Agg')
+
 from matplotlib import pyplot as plt
 
 def create_plot_image(mark_inst, work_point = None):

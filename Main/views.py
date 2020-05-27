@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
-from .forms import Choose
+from .forms import Choose, Work_point
 from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
 from .plots import create_plot_image
 
@@ -31,7 +31,9 @@ def pumps(request):
 
 def choice(request):
 
-    return render(request, 'main/choice.html')
+    context = {"form": Work_point()}
+
+    return render(request, 'main/choice.html', context)
 
 def update_data(request):
 
