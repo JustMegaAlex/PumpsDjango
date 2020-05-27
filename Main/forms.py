@@ -36,3 +36,7 @@ class Choose(forms.Form):
         if point_x and point_y:
             self.fields['x_coord'].initial = point_x
             self.fields['y_coord'].initial = point_y
+
+class Work_point(forms.Form):
+    x_coord = forms.FloatField(required = False)
+    y_coord = forms.FloatField(required = False)

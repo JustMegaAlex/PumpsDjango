@@ -29,6 +29,10 @@ def pumps(request):
     context['form'] = form
     return render(request, 'main/pumps.html', context)
 
+def choice(request):
+
+    return render(request, 'main/choice.html')
+
 def update_data(request):
 
     manufacturer = 'Grundfos'

@@ -20,5 +20,6 @@ from Main import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', views.pumps),
-    path('update/', views.update_data)
+    path('update/', views.update_data),
+    path('choice/', views.choice)
 ]
