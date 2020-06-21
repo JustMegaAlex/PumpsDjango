@@ -9,12 +9,11 @@
         </form>
 
         <ul>
-            {% for mark in marks_list %}
-
+            
+            {% for tpl in choice_data %}
             <li>
-                {{mark.id}} <a href="/main?eq_mark={{mark.id}}">глянем</a>
+                {{tpl.0.id}} <a href="{{tpl.1}}">глянем</a>
             </li>
-
             {% endfor %}
 
         </ul>

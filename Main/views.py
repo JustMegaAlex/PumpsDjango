@@ -9,17 +9,36 @@ from .plots import create_plot_image, get_interp_fun
 
 
 def pumps(request):
+    
+    manuf = None
+    eq_type = None
+    eq_model = None
+    eq_mark = None
+    _x = None
+    _y = None
+    work_point = None
 
-    manuf = request.POST.get('manufacturer')
-    eq_type = request.POST.get('eq_type')
-    eq_model = request.POST.get('eq_model')
-    eq_mark = request.POST.get('eq_mark')
-    _x = request.POST.get('x_coord')
-    _y = request.POST.get('y_coord')
+    if request.method == 'POST':
+
+        manuf = request.POST.get('manufacturer')
+        eq_type = request.POST.get('eq_type')
+        eq_model = request.POST.get('eq_model')
+        eq_mark = request.POST.get('eq_mark')
+        _x = request.POST.get('x_coord')
+        _y = request.POST.get('y_coord')
+
+    elif request.method == 'GET':
+
+        manuf = request.GET.get('manufacturer')
+        eq_type = request.GET.get('eq_type')
+        eq_model = request.GET.get('eq_model')
+        eq_mark = request.GET.get('eq_mark')
+        _x = request.GET.get('x_coord')
+        _y = request.GET.get('y_coord')
+    
     work_point = (float(_x), float(_y)) if _x  and _y  else None
 
-    if request.method == 'GET':
-        eq_mark = request.GET.get('eq_mark')
+    print(work_point)
 
     context = {}
 
@@ -34,13 +53,12 @@ def pumps(request):
 
 def choice(request):
 
+    # this should be a choice-field
     eq_type = '1s'
 
     eq_type_instance = Eq_type.objects.get(eq_type = eq_type)
 
     all_marks = Eq_mark.objects.filter(eq_type = eq_type_instance)
-
-    print(all_marks)
 
     _x = request.POST.get('x_coord')
     _y = request.POST.get('y_coord')
@@ -54,7 +72,7 @@ def choice(request):
         _x = float(_x)
         _y = float(_y)
 
-        choosed_marks = []
+        choice_data = []
 
         # choose siutable marks
         for mark in all_marks:
@@ -66,10 +84,19 @@ def choice(request):
             delta = _y/compute_y
 
             if 0.5 < delta < 1.02:
+                
+                # make a link
+                eq_type = mark.eq_type
 
-                choosed_marks.append(mark)
+                eq_model = eq_type.eq_model
 
-        context['marks_list'] = choosed_marks
+                manuf = eq_model.manufacturer
+
+                link = f'/main?eq_mark={mark.eq_mark}&eq_type={eq_type.eq_type}&eq_model={eq_model.eq_model}&manufacturer={manuf.name}&x_coord={_x}&y_coord={_y}'
+
+                choice_data.append((mark, link))
+
+        context['choice_data'] = choice_data
 
     return render(request, 'main/choice.html', context)
 

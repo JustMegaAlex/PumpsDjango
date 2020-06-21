@@ -2,22 +2,24 @@
 <!DOCTYPE html>
 <head>
     <body>
+
         <form action="/main/" method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <input type="submit" value="Submit">
         </form>
+
         {% if img1 %}
-        <form>{{ point_input }}</form>
-        <div><img height = 250 width = 250 src= {{img1}}></div>
-        {% if load_q %}
-        <p>Потребный расход: {{load_q}}</p>
-        <p>Потребный напор: {{load_h}}</p>
-        <p>КПД: {{load_eff}}</p>
-        <p>Мощность на валу насоса: {{load_p2}}</p>
-        <p>NPSH: {{load_npsh}}</p>
-        {% endif %}
-        <div><img height = 250 width = 250 src= {{img2}}></div>
-        <div><img height = 250 width = 250 src= {{img3}}></div>
+            <form>{{ point_input }}</form>
+            <div><img height = 250 width = 250 src= {{img1}}></div>
+            {% if load_q %}
+                <p>Потребный расход: {{load_q}}</p>
+                <p>Потребный напор: {{load_h}}</p>
+                <p>КПД: {{load_eff}}</p>
+                <p>Мощность на валу насоса: {{load_p2}}</p>
+                <p>NPSH: {{load_npsh}}</p>
+            {% endif %}
+            <div><img height = 250 width = 250 src= {{img2}}></div>
+            <div><img height = 250 width = 250 src= {{img3}}></div>
         {% endif %}
     </body>
