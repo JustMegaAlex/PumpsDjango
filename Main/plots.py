@@ -8,18 +8,18 @@ matplotlib.use('Agg')
 
 from matplotlib import pyplot as plt
 
-def get_interp_fun(mark_inst, which_curve = '', y_points_default = None, interp_kind = 'quadratic'):
+def get_interp_fun(mark_inst, which_curve = '', y_points = None, interp_kind = 'quadratic'):
 
-    if not y_points_default:
+    if not y_points:
 
         if which_curve == 'h':
-            y_points_default = mark_inst.h_curve_points
+            y_points = mark_inst.h_curve_points
         elif which_curve == 'eff':
-            y_points_default = mark_inst.efficiency_curve_points
+            y_points = mark_inst.efficiency_curve_points
         elif which_curve == 'p2':
-            y_points_default = mark_inst.p2_curve_points
+            y_points = mark_inst.p2_curve_points
         elif which_curve == 'npsh':
-            y_points_default = mark_inst.npsh_curve_points
+            y_points = mark_inst.npsh_curve_points
 
         y_points_default = get_list_points(y_points_default)
 
