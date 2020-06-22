@@ -38,8 +38,6 @@ def pumps(request):
     
     work_point = (float(_x), float(_y)) if _x  and _y  else None
 
-    print(work_point)
-
     context = {}
 
     if eq_mark:
@@ -79,7 +77,13 @@ def choice(request):
 
             h_fun = get_interp_fun(mark, 'h')
 
-            compute_y = h_fun(_x)
+            try:
+
+                compute_y = h_fun(_x)
+
+            except ValueError:
+
+                return render(request, 'main/choice.html', {'choice_data': [('No result!', None)]})
 
             delta = _y/compute_y
 
@@ -94,7 +98,9 @@ def choice(request):
 
                 link = f'/main?eq_mark={mark.eq_mark}&eq_type={eq_type.eq_type}&eq_model={eq_model.eq_model}&manufacturer={manuf.name}&x_coord={_x}&y_coord={_y}'
 
-                choice_data.append((mark, link))
+                info = f'{manuf.name} {eq_model.eq_model}{eq_type.eq_type}{mark.eq_mark}'
+
+                choice_data.append((info, link))
 
         context['choice_data'] = choice_data
 

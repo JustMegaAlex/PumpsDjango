@@ -1,20 +1,36 @@
 
 <!DOCTYPE html>
+
 <head>
+
     <body>
+
         <form action="/choice/" method="post">
+
             {% csrf_token %}
+
             {{ form.as_p }}
+
             <input type="submit" value="Submit">
+
         </form>
 
-        <ul>
-            
+        <table>
+
             {% for tpl in choice_data %}
-            <li>
-                {{tpl.0.id}} <a href="{{tpl.1}}">глянем</a>
-            </li>
+
+            <tr>
+
+                <td> {{tpl.0}} </td>
+
+                {% if tpl.1 %} <td> <a href="{{tpl.1}}">open</a> </td> {% endif %}
+
+            </tr>
+
             {% endfor %}
 
-        </ul>
+            <tr></tr>
+
+        </table>
+
     </body>

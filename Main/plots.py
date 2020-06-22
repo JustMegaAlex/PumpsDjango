@@ -8,9 +8,98 @@ matplotlib.use('Agg')
 
 from matplotlib import pyplot as plt
 
-def get_interp_fun(mark_inst, which_curve = '', y_points = None, interp_kind = 'quadratic'):
+class Curves():
 
-    if not y_points:
+    def __init__(self, mark_inst, interplolate_curves = True, interp_points = 40):
+
+        self.q_points_coarse = get_list_points(mark_inst.q_curve_points)
+
+        self.q_points = np.linspace(self.q_points_coarse[0], self.q_points_coarse[-1], interp_points, endpoint = True)
+
+        self.q_points = list(self.q_points)
+
+        # interpolate curves
+        self.h_fun = get_interp_fun(mark_inst, 'h')
+
+        self.eff_fun = get_interp_fun(mark_inst, 'eff')
+
+        self.npsh_fun = get_interp_fun(mark_inst, 'npsh')
+
+        self.p2_fun = get_interp_fun(mark_inst, 'p2')
+
+        self.h_points = None
+
+        self.eff_points = None
+
+        self.npsh_points = None
+
+        self.p2_points = None
+
+        if interplolate_curves:
+
+            self.h_points = self.h_fun(self.q_points)
+
+            self.eff_points = self.eff_fun(self.q_points)
+
+            self.npsh_points = self.npsh_fun(self.q_points)
+
+            self.p2_points = self.p2_fun(self.q_points)
+
+        self.work_point = None
+
+        self.h_load_fun = None
+
+        self.h_load_points = None
+
+        self.load_h = None
+
+        self.load_q = None
+
+        self.load_eff = None
+
+        self.load_npsh = None
+
+        self.load_p2 = None
+
+    def compute_work_parameters(self, work_point):
+
+        self.work_point = work_point
+
+        if not (self.work_point[0] > 0 and self.work_point[1]) > 0:
+
+            raise Exception('Invalid work point!')
+
+        # compute and plot load curve
+        koef = self.work_point[1]/self.work_point[0]**2
+
+        self.h_load_points = [koef*q**2 for q in self.q_points]
+
+        self.h_load_fun = get_interp_fun(x_points = self.q_points, y_points = self.h_load_points)
+
+        self.load_q, self.load_h = get_intersect_point(self.h_fun, self.h_load_fun, segment = (self.q_points[0], self.q_points[-1]))
+        
+        if self.load_q:
+
+            # compute other curves' values
+            self.load_eff = self.eff_fun(self.load_q)
+
+            self.load_npsh = self.npsh_fun(self.load_q)
+
+            self.load_p2 = self.p2_fun(self.load_q)
+
+
+
+def get_interp_fun(mark_inst = None, which_curve = '', interp_kind = 'quadratic', x_points = None, y_points = None):
+
+    if y_points == None:
+
+        if not which_curve:
+
+            raise Exception('which_curve must be assigned if y_points is None')
+
+        if not mark_inst:
+
+            raise Exception('mark_inst must be assigned if y_points is None')
 
         if which_curve == 'h':
             y_points = mark_inst.h_curve_points
@@ -21,108 +110,93 @@ def get_interp_fun(mark_inst, which_curve = '', y_points = None, interp_kind = '
         elif which_curve == 'npsh':
             y_points = mark_inst.npsh_curve_points
 
-        y_points_default = get_list_points(y_points_default)
+        y_points = get_list_points(y_points)
 
-    return interp1d(get_list_points(mark_inst.q_curve_points), y_points_default, kind = interp_kind)
+    print(type(x_points), type(y_points), sep = '\n')
 
+    if x_points == None:
 
+        x_points = get_list_points(mark_inst.q_curve_points)
+
+    
+
+    return interp1d(x_points, y_points, kind = interp_kind)
 
 def create_plot_image(mark_inst, work_point = None):
 
-    interp_points = 40
     truncate_koef = 1.2
-    load_q = None
-    load_h = None
-    load_eff = None
-    load_npsh = None
-    load_p2 = None
-
-    q_points_coarse = get_list_points(mark_inst.q_curve_points)
-    q_points = np.linspace(q_points_coarse[0], q_points_coarse[-1], interp_points, endpoint = True)
-
+    
     path1 = '/static/images/pq_and_eff.png'
     path2 = '/static/images/npsh.png'
     path3 = '/static/images/p2.png'
+
+    curves = Curves(mark_inst, interplolate_curves = True)
     
     plt.clf() # clean plots
 
-    # interpolate curves
-    h_fun = get_interp_fun(mark_inst, 'h')
-    eff_fun = get_interp_fun(mark_inst, 'eff')
-    npsh_fun = get_interp_fun(mark_inst, 'npsh')
-    p2_fun = get_interp_fun(mark_inst, 'p2')
-
     # plot H-Q curve
-    plt.plot(q_points, h_fun(q_points))
+    plt.plot(curves.q_points, curves.h_points)
 
     # plot workpoint and load H-Q curve
     if work_point:
-        if work_point[0] > 0 and work_point[1] > 0:
-            # plot work_point
-            plt.plot(work_point[0], work_point[1], 'ro')
 
-            # compute and plot load curve
-            koef = work_point[1]/work_point[0]**2
-            h_load_points_coarse = [koef*q**2 for q in q_points_coarse]
-            h_load_fun = get_interp_fun(mark_inst, y_points_default = h_load_points_coarse)
-            load_q, load_h = get_intersect_point(h_fun, h_load_fun, segment = (q_points_coarse[0], q_points_coarse[-1]))
-            
-            if load_q:
-                # compute index to truncate load curve
-                i = 0
-                while q_points[i] < load_q:
-                    i += 1
-                i = round(i*truncate_koef)
-                # plot curve truncated
-                plt.plot(q_points[:i], h_load_fun(q_points[:i]))
-                plt.plot(load_q, load_h, 'ro')
+        curves.compute_work_parameters(work_point)
 
-                # compute other curves' values
-                load_eff = eff_fun(load_q)
-                load_npsh = npsh_fun(load_q)
-                load_p2 = p2_fun(load_q)
+        # plot work_point
+        plt.plot(curves.work_point[0], curves.work_point[1], 'ro')
+
+        if curves.load_q:
+
+            q_points = curves.q_points
+            # compute index to truncate load curve
+            i = 0
+            while q_points[i] < curves.load_q:
+                i += 1
+            i = round(i*truncate_koef)
+            # plot curve truncated
+            plt.plot(q_points[:i], curves.h_load_points)
+            plt.plot(curves.load_q, curves.load_h, 'ro')
 
     # plot eff-Q curve
     ax_eff = plt.twinx()
-    eff_points = eff_fun(q_points)
-    ax_eff.plot(q_points, eff_points)
+    ax_eff.plot(curves.q_points, curves.eff_points)
     # get efficiency max value
-    eff_max = max(eff_points)
+    eff_max = max(curves.eff_points)
     # set plot y lim(it
     ax_eff.set_ylim((0, eff_max*3))
     plt.savefig('Main/' + path1)
     
     # plot npsh-Q curve
     plt.clf()
-    plt.plot(q_points, npsh_fun(q_points))
+    plt.plot(curves.q_points, curves.npsh_points)
     plt.savefig('Main/' + path2)
 
     # plot p2-Q curve
     plt.clf()
-    plt.plot(q_points, p2_fun(q_points))
+    plt.plot(curves.q_points, curves.p2_points)
     plt.savefig('Main/' + path3)
-
-    if load_q != None:
-        load_q = formatted(load_q)
-        load_h = formatted(load_h)
-        load_eff = formatted(load_eff)
-        load_p2 = formatted(load_p2)
-        load_npsh = formatted(load_npsh)
 
     curves_data = {
         'img1': path1,
         'img2': path2,
-        'img3': path3,
-        'load_q': load_q,
-        'load_h': load_h,
-        'load_eff': load_eff,
-        'load_npsh': load_npsh,
-        'load_p2': load_p2
+        'img3': path3
     }
+
+    if curves.load_q != None:
+        
+        extra = {
+            'load_q': formatted(curves.load_q),
+            'load_h': formatted(curves.load_h),
+            'load_eff': formatted(curves.load_eff),
+            'load_npsh': formatted(curves.load_npsh),
+            'load_p2': formatted(curves.load_p2)
+        }
+
+        curves_data.update(extra)
     
     return curves_data
 
-def get_list_points(str_curve, old_x = None, new_x = None):
+def get_list_points(str_curve):
     '''
     converts string of comma-separated floats into a list of floats
     :input: [str]
