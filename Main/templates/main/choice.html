@@ -15,22 +15,40 @@
 
         </form>
 
-        <table>
+        {% if choice_data.no_result %}
 
-            {% for tpl in choice_data %}
+        <p>No result</p>
 
-            <tr>
+        {% elif choice_data.0 %}
 
-                <td> {{tpl.0}} </td>
+            <table cellspacing = "10">
 
-                {% if tpl.1 %} <td> <a href="{{tpl.1}}">open</a> </td> {% endif %}
+                <td>Pump</td> <td>Q</td> <td>H</td> <td>NPSH</td> <td>Efficiency</td> <td>P2</td> <td></td>
 
-            </tr>
+                {% for info in choice_data %}
 
-            {% endfor %}
+                <tr>
 
-            <tr></tr>
+                    <td> {{info.name}} </td>
 
-        </table>
+                    <td> {{info.q_wp}} </td>
+
+                    <td> {{info.h_wp}} </td>
+
+                    <td> {{info.npsh_wp}} </td>
+
+                    <td> {{info.eff_wp}} </td>
+
+                    <td> {{info.p2_wp}} </td>
+
+                    <td> <a href="{{info.link}}">open</a> </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        {% endif %}
 
     </body>

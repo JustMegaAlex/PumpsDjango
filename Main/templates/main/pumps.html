@@ -12,12 +12,12 @@
         {% if img1 %}
             <form>{{ point_input }}</form>
             <div><img height = 250 width = 250 src= {{img1}}></div>
-            {% if load_q %}
-                <p>Потребный расход: {{load_q}}</p>
-                <p>Потребный напор: {{load_h}}</p>
-                <p>КПД: {{load_eff}}</p>
-                <p>Мощность на валу насоса: {{load_p2}}</p>
-                <p>NPSH: {{load_npsh}}</p>
+            {% if q_wp %}
+                <p>Потребный расход: {{q_wp}}</p>
+                <p>Потребный напор: {{h_wp}}</p>
+                <p>КПД: {{eff_wp}}</p>
+                <p>Мощность на валу насоса: {{p2_wp}}</p>
+                <p>NPSH: {{npsh_wp}}</p>
             {% endif %}
             <div><img height = 250 width = 250 src= {{img2}}></div>
             <div><img height = 250 width = 250 src= {{img3}}></div>

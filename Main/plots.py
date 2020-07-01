@@ -51,15 +51,15 @@ class Curves():
 
         self.h_load_points = None
 
-        self.load_h = None
+        self.h_wp = None
 
-        self.load_q = None
+        self.q_wp = None
 
-        self.load_eff = None
+        self.eff_wp = None
 
-        self.load_npsh = None
+        self.npsh_wp = None
 
-        self.load_p2 = None
+        self.p2_wp = None
 
     def compute_work_parameters(self, work_point):
 
@@ -76,16 +76,16 @@ class Curves():
 
         self.h_load_fun = get_interp_fun(x_points = self.q_points, y_points = self.h_load_points)
 
-        self.load_q, self.load_h = get_intersect_point(self.h_fun, self.h_load_fun, segment = (self.q_points[0], self.q_points[-1]))
+        self.q_wp, self.h_wp = get_intersect_point(self.h_fun, self.h_load_fun, segment = (self.q_points[0], self.q_points[-1]))
         
-        if self.load_q:
+        if self.q_wp:
 
             # compute other curves' values
-            self.load_eff = self.eff_fun(self.load_q)
+            self.eff_wp = self.eff_fun(self.q_wp)
 
-            self.load_npsh = self.npsh_fun(self.load_q)
+            self.npsh_wp = self.npsh_fun(self.q_wp)
 
-            self.load_p2 = self.p2_fun(self.load_q)
+            self.p2_wp = self.p2_fun(self.q_wp)
 
 
 
@@ -145,17 +145,17 @@ def create_plot_image(mark_inst, work_point = None):
         # plot work_point
         plt.plot(curves.work_point[0], curves.work_point[1], 'ro')
 
-        if curves.load_q:
+        if curves.q_wp:
 
             q_points = curves.q_points
             # compute index to truncate load curve
             i = 0
-            while q_points[i] < curves.load_q:
+            while q_points[i] < curves.q_wp:
                 i += 1
             i = round(i*truncate_koef)
             # plot curve truncated
-            plt.plot(q_points[:i], curves.h_load_points)
-            plt.plot(curves.load_q, curves.load_h, 'ro')
+            plt.plot(q_points[:i], curves.h_load_points[:i])
+            plt.plot(curves.q_wp, curves.h_wp, 'ro')
 
     # plot eff-Q curve
     ax_eff = plt.twinx()
@@ -182,14 +182,14 @@ def create_plot_image(mark_inst, work_point = None):
         'img3': path3
     }
 
-    if curves.load_q != None:
+    if curves.q_wp != None:
         
         extra = {
-            'load_q': formatted(curves.load_q),
-            'load_h': formatted(curves.load_h),
-            'load_eff': formatted(curves.load_eff),
-            'load_npsh': formatted(curves.load_npsh),
-            'load_p2': formatted(curves.load_p2)
+            'q_wp': formatted(curves.q_wp),
+            'h_wp': formatted(curves.h_wp),
+            'eff_wp': formatted(curves.eff_wp),
+            'npsh_wp': formatted(curves.npsh_wp),
+            'p2_wp': formatted(curves.p2_wp)
         }
 
         curves_data.update(extra)
@@ -235,6 +235,25 @@ def get_intersect_point(f1, f2, segment, tol = 0.001, max_iters = 1000):
         return None, None
 
     return x, y1
+
+def choose_pumps(all_marks, work_point):
+
+    choosen = []
+
+    # choose siutable marks
+    for mark in all_marks:
+
+        h_fun = get_interp_fun(mark, 'h')
+
+        compute_y = h_fun(work_point[0])
+
+        delta = work_point[1]/compute_y
+
+        if 0.5 < delta < 1.02:
+
+            choosen.append(mark)
+
+    return choosen
 
 def formatted(f):
     return '{:.2f}'.format(f)

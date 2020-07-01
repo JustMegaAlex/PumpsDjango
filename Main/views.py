@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import Choose, Work_point
 from .models import Manufacturer, Eq_type, Eq_model, Eq_mark
-from .plots import create_plot_image, get_interp_fun
+from .plots import create_plot_image, get_interp_fun, choose_pumps, Curves, formatted
 
 
 
@@ -45,7 +45,7 @@ def pumps(request):
         curves_data = create_plot_image(eq_mark_inst, work_point = work_point)
         context.update(curves_data)
 
-    form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type, point_x = _x, point_y = _y)
+    form = Choose(ch_manuf = manuf, ch_model = eq_model, ch_type = eq_type, ch_mark = eq_mark, point_x = _x, point_y = _y)
     context['form'] = form
     return render(request, 'main/pumps.html', context)
 
@@ -65,42 +65,49 @@ def choice(request):
     context = {}
     context['form'] = Work_point()
 
+    choice_data = []
+
     if work_point:
 
-        _x = float(_x)
-        _y = float(_y)
+        try:
 
-        choice_data = []
+            choosen = choose_pumps(all_marks, work_point)
 
-        # choose siutable marks
-        for mark in all_marks:
+        except ValueError:
 
-            h_fun = get_interp_fun(mark, 'h')
+            return render(request, 'main/choice.html', {'no_result': True})
 
-            try:
+        # create output data
+        for mark in choosen:
 
-                compute_y = h_fun(_x)
+            curves = Curves(mark)
 
-            except ValueError:
+            curves.compute_work_parameters(work_point)
 
-                return render(request, 'main/choice.html', {'choice_data': [('No result!', None)]})
+            # make a link
+            eq_type = mark.eq_type
 
-            delta = _y/compute_y
+            eq_model = eq_type.eq_model
 
-            if 0.5 < delta < 1.02:
-                
-                # make a link
-                eq_type = mark.eq_type
+            manuf = eq_model.manufacturer
 
-                eq_model = eq_type.eq_model
+            link = f'/main?eq_mark={mark.eq_mark}&eq_type={eq_type.eq_type}&eq_model={eq_model.eq_model}&manufacturer={manuf.name}&x_coord={_x}&y_coord={_y}'
 
-                manuf = eq_model.manufacturer
+            # pump's name
+            info_name = f'{manuf.name} {eq_model.eq_model}{eq_type.eq_type}{mark.eq_mark}'
 
-                link = f'/main?eq_mark={mark.eq_mark}&eq_type={eq_type.eq_type}&eq_model={eq_model.eq_model}&manufacturer={manuf.name}&x_coord={_x}&y_coord={_y}'
+            choice_data.append({
+                'name': info_name,
+                'q_wp': formatted(curves.q_wp),
+                'h_wp': formatted(curves.h_wp),
+                'npsh_wp': formatted(curves.npsh_wp),
+                'eff_wp': formatted(curves.eff_wp),
+                'p2_wp': formatted(curves.p2_wp),
+                'link': link
+            })
 
-                info = f'{manuf.name} {eq_model.eq_model}{eq_type.eq_type}{mark.eq_mark}'
-
-                choice_data.append((info, link))
+        # sort by efficiency
+        choice_data.sort(key = lambda x: x['eff_wp'], reverse = True)
 
         context['choice_data'] = choice_data
 

@@ -32,6 +32,9 @@ class Choose(forms.Form):
                     type_obj = Eq_type.objects.get(eq_type = ch_type)
                     self.fields['eq_mark'].choices = [(obj.eq_mark, obj.eq_mark) for obj in Eq_mark.objects.filter(eq_type = type_obj)]
                     self.fields['eq_type'].initial = ch_type
+
+                    if ch_mark:
+                        self.fields['eq_mark'].initial = ch_mark
         
         if point_x and point_y:
             self.fields['x_coord'].initial = point_x
